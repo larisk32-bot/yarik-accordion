@@ -1,0 +1,25 @@
+MUSICAL REWARDS — YARIK AND THE MAGIC ACCORDION
+
+Nine 10-second educational melody excerpts, rendered by this game's own Web Audio accordion synthesizer. Only the right-hand melodic voice is used; highest notes of simultaneous chords are retained. These are adaptations, not full scores or commercial recordings. Rhythmic proportions are retained; excerpt tempos are adjusted to fit ten seconds. Different gates present different portions of each work.
+
+1. Christian Petzold — Minuet in G major, BWV Anh. 114.
+   Score/MIDI typeset by Allen Garvin for Mutopia, Mutopia-2017/01/19-75, Public Domain dedication.
+   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=75
+   https://www.mutopiaproject.org/ftp/BachJS/BWVAnh114/anna-magdalena-04/anna-magdalena-04.mid
+   Authorship note: the older Mutopia metadata attributes this work to J. S. Bach. The game's corrected composer credit follows IMSLP's authorship note:
+   https://imslp.org/wiki/Minuet_in_G_major,_BWV_Anh.114_(Bach,_Johann_Sebastian)
+
+2. Wolfgang Amadeus Mozart — Rondo alla Turca, K.331.
+   Typeset by Rune Zedeler and Chris Sawer for Mutopia, Mutopia-2015/08/13-108, Public Domain dedication.
+   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=108
+   https://www.mutopiaproject.org/ftp/MozartWA/KV331/KV331_3_RondoAllaTurca/KV331_3_RondoAllaTurca.mid
+
+3. Ludwig van Beethoven — Fur Elise, WoO 59.
+   Typeset by Stelios Samelis for Mutopia, Mutopia-2015/08/18-931, Public Domain dedication. Source edition: Breitkopf & Hartel, 1888.
+   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
+   https://www.mutopiaproject.org/ftp/BeethovenLv/WoO59/fur_Elise_WoO59/fur_Elise_WoO59.mid
+
+FINALE: "A Melody for Yarik" / "Мелодия для Ярика" — an original waltz composed for this game by Mira, 2026.
+24 bars, 3/4, quarter note = 72, exactly 60 seconds. Original melody and accordion-style bass/chord accompaniment are encoded in music.js. Familiar tonal waltz harmony is used; no specific existing melody was requested or copied.
+
+No third-party sound recordings are included. The source note data and attribution above concern only the music, not the rest of the game code or illustrations.
