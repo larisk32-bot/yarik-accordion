@@ -23,3 +23,7 @@ FINALE: "A Melody for Yarik" / "Мелодия для Ярика" — an origina
 24 bars, 3/4, quarter note = 72, exactly 60 seconds. Original melody and accordion-style bass/chord accompaniment are encoded in music.js. Familiar tonal waltz harmony is used; no specific existing melody was requested or copied.
 
 No third-party sound recordings are included. The source note data and attribution above concern only the music, not the rest of the game code or illustrations.
+
+V5: Non-identical excerpt selection; very short MIDI ornaments removed and overlapping lead notes trimmed. Audio pre-rendered with sustained additive free-reed synthesis and detuned reed banks, not piano samples or third-party recordings. Stereo MP3 files, normalized peak 0.72.
+
+V5 finale revised: original energetic accordion theme "Onward to the Stars!", 36 bars in 4/4 at 144 BPM, 60 seconds, minor-to-major development. Replaces the earlier waltz; no Beethoven theme quoted.

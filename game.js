@@ -24,7 +24,7 @@
  function persist(){try{localStorage.setItem(STORE,JSON.stringify(save))}catch{if(!saveWarning){saveWarning=true;toast(tr('noSave'))}}}
  const audio={ctx:null,gain:null,muted:save.muted,
   init(){if(!this.ctx){this.ctx=new(window.AudioContext||window.webkitAudioContext)();this.gain=this.ctx.createGain();this.gain.gain.value=this.muted?0:.18;this.gain.connect(this.ctx.destination)}if(this.ctx.state==='suspended')this.ctx.resume().catch(()=>{})},
-  note(i,duration=.32,delay=0,volume=.7){if(!this.ctx||this.ctx.state!=='running'||this.muted)return;const freq=[261.63,329.63,392,440,523.25,659.25][i%6],t=this.ctx.currentTime+delay;for(let h=0;h<3;h++){const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=h===0?'triangle':'sine';o.frequency.value=freq*(h===2?2:1);o.detune.value=h===1?5:0;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume*(h===0?.35:.09),t+.035);g.gain.exponentialRampToValueAtTime(.001,t+duration);o.connect(g);g.connect(this.gain);o.start(t);o.stop(t+duration+.03)}},
+  note(i,duration=.32,delay=0,volume=.7){if(!this.ctx||this.ctx.state!=='running'||this.muted)return;this.midi([60,64,67,69,72,76][i%6],duration,delay,volume)},
   coin(){this.note(4,.16,0,.4);this.note(5,.22,.08,.3)},
   chord(){[0,1,2,4].forEach((n,i)=>this.note(n,.65,i*.11,.55))},
   silence(){if(this.ctx?.state==='running')this.ctx.suspend().catch(()=>{})},
@@ -37,7 +37,7 @@
  function updateHud(){$('chapter').textContent=tr('chapter')+' '+String(level+1).padStart(2,'0')+' / 03';$('world-name').textContent=tr('world'+level);$('notes-count').textContent=save.worlds[level].notes.length;$('runes-count').textContent='✧ '+save.worlds[level].gates.filter(Boolean).length+' / 3'}
  function resetHero(){const gates=save.worlds[level].gates;let x=120;gates.forEach((g,i)=>{if(g)x=gateXs[i]+85});hero={x,y:398,vx:0,vy:0,w:30,h:52,dir:1,ground:true};camera=Math.max(0,Math.min(3080-viewW,x-viewW*.3));jumpBuffer=0;coyote=.12}
  function loadLevel(n){level=n;save.level=n;coins=[];for(let i=0;i<28;i++){const x=170+i*102;if(ground.some(([a,b])=>x>a+20&&x<b-20))coins.push({id:'g'+i,x,y:414})}highPlatforms.forEach((p,i)=>{for(let j=0;j<3;j++)coins.push({id:'h'+i+'-'+j,x:p.x+20+j*28,y:p.y-36})});particles=[];resetHero();updateHud();persist()}
- function start(){audio.init();if(save.won){$('confirm-screen').hidden=false;return}started=true;loadLevel(save.level);setState('playing');audio.init();if(!save.worlds[level].gates.some(Boolean))toast(tr('firstHint'))}
+ function start(){audio.init();preloadConcertMusic();if(save.won){$('confirm-screen').hidden=false;return}started=true;loadLevel(save.level);setState('playing');audio.init();if(!save.worlds[level].gates.some(Boolean))toast(tr('firstHint'))}
  function newGame(){stopConcertAudio();concert=null;pauseReturn='playing';save=fresh();save.muted=audio.muted;started=true;persist();$('confirm-screen').hidden=true;loadLevel(0);setState('playing');audio.init();toast(tr('firstHint'))}
  function toast(s){$('toast').textContent=s;$('toast').classList.add('visible');toastUntil=performance.now()+3600}
  function burst(x,y,color,count=20){for(let i=0;i<count;i++){const angle=random(i+x+clock)*TAU,speed=35+random(i*9+clock)*115;particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-45,t:1,life:.7+random(i*7)*.65,color,r:1.5+random(i)*3})}}
@@ -63,8 +63,8 @@
  function tone(n){if(state!=='puzzle'||!puzzle||puzzle.busy||puzzle.solved)return;audio.init();audio.note(n,.35);highlight(n);if(n!==puzzle.sequence[puzzle.index]){puzzle.index=0;$('sequence-dots').querySelectorAll('i').forEach(d=>d.classList.remove('done'));$('puzzle-status').textContent=tr('tryAgain');return}puzzle.index++;$('sequence-dots').children[puzzle.index-1].classList.add('done');if(puzzle.index===puzzle.sequence.length){puzzle.solved=true;puzzle.busy=true;$('listen').disabled=true;save.worlds[level].gates[puzzle.gate]=true;persist();updateHud();$('puzzle-status').textContent=tr('gateOpen');startGateConcert(puzzle.gate)}}
  function closePuzzle(){clearPuzzleTimers();puzzle=null;setState('playing');audio.init()}
  // Music rewards use the same AudioContext clock for sound, score and key lights.
- Object.assign(text.ru,{concertEyebrow:'МУЗЫКА ТВОЕЙ ПОБЕДЫ',finalMusicEyebrow:'ЭТА МЕЛОДИЯ СОЧИНЕНА ДЛЯ ТЕБЯ',concertReplay:'♫ Ещё раз',concertContinue:'Продолжить путь ↗',concertHelp:'Звучащая нота светится на нотном стане и на клавиатуре.',concertSkip:'Пропустить музыку',concertDone:'Мелодия сыграна. Можно послушать ещё раз.',concertExcerpt:'Фрагмент мелодии · адаптация для аккордеона',concertOriginal:'Вальс для Ярика · 24 такта',concertFragment:'часть',concertFinalReplay:'♫ Послушать свою мелодию',listenGateHint:'E или ♫ — послушать мелодию'});
- Object.assign(text.en,{concertEyebrow:'THE MUSIC OF YOUR VICTORY',finalMusicEyebrow:'THIS MELODY WAS WRITTEN FOR YOU',concertReplay:'♫ Play again',concertContinue:'Continue the journey ↗',concertHelp:'The sounding note lights up on the score and keyboard.',concertSkip:'Skip the music',concertDone:'The melody is finished. You can listen again.',concertExcerpt:'Melody excerpt · accordion adaptation',concertOriginal:'A waltz for Yarik · 24 bars',concertFragment:'part',concertFinalReplay:'♫ Listen to your melody',listenGateHint:'E or ♫ — listen to the melody'});
+ Object.assign(text.ru,{concertEyebrow:'МУЗЫКА ТВОЕЙ ПОБЕДЫ',finalMusicEyebrow:'ЭТА МЕЛОДИЯ СОЧИНЕНА ДЛЯ ТЕБЯ',concertReplay:'♫ Ещё раз',concertContinue:'Продолжить путь ↗',concertHelp:'Звучащая нота светится на нотном стане и на клавиатуре.',concertSkip:'Пропустить музыку',concertDone:'Мелодия сыграна. Можно послушать ещё раз.',concertExcerpt:'Фрагмент мелодии · адаптация для аккордеона',concertOriginal:'Вперёд к звёздам! · 36 тактов',concertFragment:'часть',concertFinalReplay:'♫ Послушать свою мелодию',listenGateHint:'E или ♫ — послушать мелодию'});
+ Object.assign(text.en,{concertEyebrow:'THE MUSIC OF YOUR VICTORY',finalMusicEyebrow:'THIS MELODY WAS WRITTEN FOR YOU',concertReplay:'♫ Play again',concertContinue:'Continue the journey ↗',concertHelp:'The sounding note lights up on the score and keyboard.',concertSkip:'Skip the music',concertDone:'The melody is finished. You can listen again.',concertExcerpt:'Melody excerpt · accordion adaptation',concertOriginal:'Onward to the Stars! · 36 bars',concertFragment:'part',concertFinalReplay:'♫ Listen to your melody',listenGateHint:'E or ♫ — listen to the melody'});
  let concert=null,pauseReturn='playing';
  const SVGN='http://www.w3.org/2000/svg';
  const noteSyllables={ru:['До','Ре','Ми','Фа','Соль','Ля','Си'],en:['C','D','E','F','G','A','B']};
@@ -74,11 +74,9 @@
  function svg(tag,attrs,parent,textContent){const el=document.createElementNS(SVGN,tag);for(const [k,v]of Object.entries(attrs))el.setAttribute(k,String(v));if(textContent!==undefined)el.textContent=textContent;if(parent)parent.append(el);return el}
  function stopConcertAudio(){if(!concert)return;for(const node of concert.nodes||[])try{node.stop()}catch{}}
  audio.midi=function(midi,duration,delay=0,volume=.65,absoluteStart=null){
-  if(!this.ctx)this.init();const frequency=440*2**((midi-69)/12),t=absoluteStart??this.ctx.currentTime+delay,nodes=[];
-  for(let harmonic=0;harmonic<3;harmonic++){
-   const o=this.ctx.createOscillator(),g=this.ctx.createGain(),filter=this.ctx.createBiquadFilter();o.type=harmonic===0?'triangle':'sine';o.frequency.value=frequency*(harmonic===2?2:1);o.detune.value=harmonic===1?4:0;filter.type='lowpass';filter.frequency.value=2800;
-   const sustain=Math.max(.04,duration-.04),amp=volume*(harmonic===0?.38:.08);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(amp,t+.025);g.gain.setValueAtTime(amp*.8,t+sustain*.72);g.gain.exponentialRampToValueAtTime(.0001,t+sustain+.035);o.connect(filter);filter.connect(g);g.connect(this.gain);o.start(t);o.stop(t+sustain+.045);nodes.push(o);
-  }return nodes;
+  if(!this.ctx)this.init();const t=absoluteStart??this.ctx.currentTime+delay,nodes=[];
+  if(!this.reedWave){const real=new Float32Array(9),imag=new Float32Array([0,1,.5,.3,.19,.12,.08,.055,.035]);this.reedWave=this.ctx.createPeriodicWave(real,imag)}
+  for(const detune of [-3.5,3.5]){const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.setPeriodicWave(this.reedWave);o.frequency.value=440*2**((midi-69)/12);o.detune.value=detune;const end=t+Math.max(.06,duration),attack=Math.min(.025,duration*.2),release=Math.min(.04,duration*.25);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume*.35,t+attack);g.gain.setValueAtTime(volume*.33,end-release);g.gain.linearRampToValueAtTime(0,end);o.connect(g);g.connect(this.gain);o.onended=()=>{o.disconnect();g.disconnect()};o.start(t);o.stop(end+.005);nodes.push(o)}return nodes;
  };
  audio.toggle=function(){this.muted=!this.muted;save.muted=this.muted;if(['playing','puzzle','concert'].includes(state))this.init();if(this.gain)this.gain.gain.value=this.muted?0:.18;persist();updateSound();toast(tr(this.muted?'muted':'unmuted'))};
  function renderScore(piece){
@@ -109,13 +107,24 @@
    const info=noteInfo(midi),black=!!info.acc,key=document.createElement('div');key.dataset.pitch=midi;key.className=black?'concert-black-key':'concert-white-key';key.style.width=(black?unit*.62:unit)+'%';key.style.left=(black?whiteIndex*unit-unit*.31:whiteIndex*unit)+'%';key.textContent=black?'':info.name;keyboard.append(key);if(!black)whiteIndex++;
   }
  }
- function startConcert(piece,after){
-  if(!piece){after();return}stopConcertAudio();clearPuzzleTimers();puzzle=null;audio.init();concert={piece,after,nodes:[],start:audio.ctx.currentTime+.06,elapsed:0,index:-1,done:false};
+ const concertBuffers=new Map();
+ function loadConcertBuffer(piece){
+  if(!concertBuffers.has(piece.id))concertBuffers.set(piece.id,fetch(piece.audio).then(r=>{if(!r.ok)throw new Error('Music HTTP '+r.status);return r.arrayBuffer()}).then(bytes=>audio.ctx.decodeAudioData(bytes)).catch(e=>{concertBuffers.delete(piece.id);throw e}));
+  return concertBuffers.get(piece.id);
+ }
+ function preloadConcertMusic(){for(const piece of [...window.YarikMusic.gates,window.YarikMusic.final])loadConcertBuffer(piece).catch(()=>{})}
+ async function startConcert(piece,after){
+  if(!piece){after();return}stopConcertAudio();clearPuzzleTimers();puzzle=null;audio.init();
+  const c={piece,after,nodes:[],start:Infinity,elapsed:0,index:-1,done:false};concert=c;
   $('concert-eyebrow').textContent=tr(piece.original?'finalMusicEyebrow':'concertEyebrow');$('concert-title').textContent=musicText(piece.title);$('concert-composer').textContent=musicText(piece.composer)+(piece.opus?' · '+piece.opus:'');$('concert-caption').textContent=tr(piece.original?'concertOriginal':'concertExcerpt')+(!piece.original?' · '+tr('concertFragment')+' '+piece.fragment:'');
-  $('concert-continue').disabled=true;$('concert-replay').disabled=true;$('current-note').textContent='—';$('current-octave').textContent='';$('concert-progress-fill').style.width='0%';document.querySelector('.concert-modal').classList.remove('finished');renderScore(piece);renderConcertKeyboard(piece);setState('concert');audio.init();
-  for(const n of piece.notes)concert.nodes.push(...audio.midi(n.midi,Math.min(n.duration*.96,piece.duration-n.start),.06+n.start,.70,concert.start+n.start));
-  for(const n of piece.accompaniment||[])concert.nodes.push(...audio.midi(n.midi,n.duration,.06+n.start,n.volume,concert.start+n.start));
-  updateConcert();
+  $('concert-continue').disabled=false;$('concert-replay').disabled=true;$('concert-skip').hidden=false;$('current-note').textContent='—';$('current-octave').textContent='';$('concert-progress-fill').style.width='0%';document.querySelector('.concert-modal').classList.remove('finished');renderScore(piece);renderConcertKeyboard(piece);setState('concert');audio.init();updateConcert();
+  try{
+   const buffer=await loadConcertBuffer(piece);if(concert!==c)return;
+   const source=audio.ctx.createBufferSource(),level=audio.ctx.createGain();source.buffer=buffer;
+   // Compensate only for the existing master bus; peaks remain below full scale.
+   level.gain.value=3;source.connect(level);level.connect(audio.gain);
+   source.onended=()=>{source.disconnect();level.disconnect()};c.nodes=[source];c.start=audio.ctx.currentTime+.025;source.start(c.start);
+  }catch(e){if(concert===c){c.done=true;$('concert-caption').textContent=lang==='ru'?'Музыка не загрузилась. Можно повторить или продолжить.':'Music could not load. Retry or continue.';$('concert-replay').disabled=false}}
  }
  function updateConcert(){
   if(!concert||state!=='concert')return;const c=concert,t=Math.max(0,Math.min(c.piece.duration,audio.ctx.currentTime-c.start));c.elapsed=t;const pct=t/c.piece.duration*100;$('concert-progress-fill').style.width=pct+'%';document.querySelector('.concert-progress').setAttribute('aria-valuenow',Math.floor(pct));const remaining=Math.max(0,Math.ceil(c.piece.duration-t));$('concert-time').textContent=Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');

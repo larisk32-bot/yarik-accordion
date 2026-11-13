@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <meta name="theme-color" content="#101f28"><meta name="description" content="Сказочное музыкальное приключение с волшебным аккордеоном.">
   <title>Ярик и волшебный аккордеон</title>
-  <link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="concert.css">
+  <link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="concert.css?v=5">
 </head>
 <body>
  <header class="topbar"><div class="brand"><span class="brand-icon">♫</span><div><strong data-i18n="brand">ЛЕСНЫЕ МЕЛОДИИ</strong><small data-i18n="edition">Маленькое большое приключение</small></div></div><div class="header-actions"><span class="save-badge" data-i18n="autosave">Прогресс сохраняется</span><button id="sound" class="icon-button" aria-label="Звук">♫</button><button id="pause" class="icon-button" aria-label="Пауза" hidden>Ⅱ</button></div></header>
@@ -21,6 +21,7 @@
   <div id="pause-screen" class="modal-backdrop" hidden><section class="modal small-modal"><span class="modal-symbol">☾</span><div class="eyebrow" data-i18n="breath">МОЖНО ПЕРЕВЕСТИ ДУХ</div><h2 data-i18n="pauseTitle">Мир подождёт</h2><p data-i18n="pauseText">Твоя мелодия никуда не исчезнет.</p><button id="resume" class="primary" data-i18n="resume">Продолжить путь</button><button id="to-menu" class="text-button" data-i18n="menu">В главное меню</button></section></div>
   <div id="puzzle-screen" class="modal-backdrop" hidden><section class="modal puzzle-modal"><button id="close-puzzle" class="modal-close" aria-label="Закрыть">×</button><div class="eyebrow" data-i18n="gateEyebrow">КАЖДЫЕ ВОРОТА ПОМНЯТ ПЕСНЮ</div><h2 data-i18n="puzzleTitle">Разбуди мелодию</h2><p id="puzzle-status" aria-live="polite"></p><div id="sequence-dots" class="sequence-dots"></div><div class="piano"><button data-tone="0" class="piano-key tone-0"><span>1</span><strong data-i18n="tone0">ДО</strong><i>●</i></button><button data-tone="1" class="piano-key tone-1"><span>2</span><strong data-i18n="tone1">МИ</strong><i>●</i></button><button data-tone="2" class="piano-key tone-2"><span>3</span><strong data-i18n="tone2">СОЛЬ</strong><i>●</i></button><button data-tone="3" class="piano-key tone-3"><span>4</span><strong data-i18n="tone3">ЛЯ</strong><i>●</i></button></div><button id="listen" class="secondary" data-i18n="listen">♫ Послушать ещё раз</button><p class="puzzle-help" data-i18n="puzzleHelp">Повтори подсвеченные клавиши. Ошибаться можно сколько угодно!</p></section></div>
   <div id="concert-screen" class="modal-backdrop" hidden><section class="modal concert-modal">
+   <div class="concert-top-actions"><button id="concert-skip" class="text-button" data-i18n="concertSkip">Пропустить музыку</button></div>
    <div class="eyebrow" id="concert-eyebrow"></div><h2 id="concert-title"></h2><p id="concert-composer" class="concert-composer"></p>
    <div class="concert-meta"><span id="concert-caption"></span><span id="concert-time">0:10</span></div>
    <div class="score-paper"><div id="score-scroll" class="score-scroll"><svg id="concert-score" height="184" role="img" aria-label="Ноты звучащей мелодии"></svg></div></div>
@@ -28,7 +29,7 @@
    <div id="concert-keyboard" class="concert-keyboard" aria-hidden="true"></div>
    <div class="concert-progress" role="progressbar" aria-label="Длительность мелодии" aria-valuemin="0" aria-valuemax="100"><div id="concert-progress-fill"></div></div>
    <div class="concert-actions"><button id="concert-replay" class="secondary" disabled data-i18n="concertReplay">♫ Ещё раз</button><button id="concert-continue" class="primary" disabled data-i18n="concertContinue">Продолжить путь ↗</button></div>
-   <p class="concert-help" data-i18n="concertHelp">Звучащая нота светится на нотном стане и на клавиатуре.</p><button id="concert-skip" class="text-button" data-i18n="concertSkip">Пропустить музыку</button>
+   <p class="concert-help" data-i18n="concertHelp">Звучащая нота светится на нотном стане и на клавиатуре.</p>
   </section></div>
 
   <div id="complete-screen" class="modal-backdrop" hidden><section class="modal completion-modal"><div class="completion-art">✧<span>♫</span>✧</div><div class="eyebrow" id="complete-eyebrow"></div><h2 id="complete-title"></h2><p id="complete-text"></p><div class="result-stats"><div><strong id="result-notes"></strong><small data-i18n="foundNotes">нот найдено</small></div><div><strong id="result-runes"></strong><small data-i18n="awakened">ворот пробуждено</small></div></div><button id="next-level" class="primary"></button><button id="final-replay" class="secondary" data-i18n="concertFinalReplay" hidden>♫ Послушать свою мелодию</button><button id="end-menu" class="text-button" data-i18n="menu">В главное меню</button></section></div>
@@ -36,6 +37,6 @@
   <div id="touch-controls" class="touch-controls" hidden><div class="direction-controls"><button id="left" aria-label="Влево">←</button><button id="right" aria-label="Вправо">→</button></div><div class="action-controls"><button id="music" class="music-control" aria-label="Играть на аккордеоне">♫</button><button id="jump" class="jump-control" aria-label="Прыжок">↑</button></div></div>
  </main>
  <footer class="footer"><span class="footer-mark">✧</span><span id="footer-text" data-i18n="footer">Стрелки — идти · Пробел — прыгать · E — играть</span><span class="footer-right" data-i18n="footerRight">Волшебство начинается с одной ноты</span></footer>
- <script src="music.js"></script>
- <script src="game.js"></script>
+ <script src="music.js?v=5"></script>
+ <script src="game.js?v=5"></script>
 </body></html>
